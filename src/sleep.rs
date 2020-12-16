@@ -1,10 +1,9 @@
-use crate::interrupt::timer::read_time;
 use super::sysctl;
+use riscv::register::mcycle;
 
 pub fn cycle_sleep(n: usize) {
-    //let start = mcycle::read();
-    let start = read_time();
-    while (/*mcycle::read()*/read_time().wrapping_sub(start)) < n {
+    let start = mcycle::read();
+    while (mcycle::read().wrapping_sub(start)) < n {
         // IDLE
     }
 }
