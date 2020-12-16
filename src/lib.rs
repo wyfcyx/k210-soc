@@ -1,3 +1,5 @@
+#![no_std]
+
 pub mod dmac;
 pub mod fpioa;
 pub mod gpio;
