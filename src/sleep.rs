@@ -1,14 +1,12 @@
 use super::sysctl;
-use riscv::register::mcycle;
+use riscv::register::time;
 
-pub fn cycle_sleep(n: usize) {
-    let start = mcycle::read();
-    while (mcycle::read().wrapping_sub(start)) < n {
-        // IDLE
-    }
+pub fn time_sleep(n: usize) {
+    let start = time::read();
+    while time::read() < start + n {}
 }
 
 pub fn usleep(n: usize) {
-    let freq = sysctl::clock_get_freq(sysctl::clock::CPU) as usize;
-    cycle_sleep(freq * n / 1000000);
+    let freq = sysctl::clock_get_freq(sysctl::clock::CPU) as usize / 62;
+    time_sleep(freq * n / 1000000);
 }
