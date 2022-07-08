@@ -4,7 +4,93 @@
 #![allow(non_camel_case_types)]
 
 //use k210_hal::pac;
+use lazy_static::*;
 use k210_pac as pac;
+use modular_bitfield::prelude::*;
+
+lazy_static! {
+    pub static ref FPIOA: _fpioa = *_fpioa::new();
+}
+
+#[repr(packed)]
+#[bitfield]
+pub struct _fpioa_assign_inner {
+    ch_sel: B8,
+    ds: B4,
+    oe_en: B1,
+    oe_inv: B1,
+    do_sel: B1,
+    do_inv: B1,
+    pu: B1,
+    pd: B1,
+    resv0: B1,
+    sl: B1,
+    ie_en: B1,
+    ie_inv: B1,
+    di_inv: B1,
+    st: B1,
+    tie_en: B1,
+    tie_val: B1,
+    resv1: B5,
+    pad_di: B1,
+}
+
+#[repr(align(4))]
+pub struct _fpioa_assign(pub _fpioa_assign_inner);
+
+#[repr(packed)]
+#[derive(Copy, Clone)]
+#[bitfield]
+pub struct _fpioa_io_config_inner {
+    ch_sel: B8,
+    ds: B4,
+    oe_en: B1,
+    oe_inv: B1,
+    do_sel: B1,
+    do_inv: B1,
+    pu: B1,
+    pd: B1,
+    resv0: B1,
+    sl: B1,
+    ie_en: B1,
+    ie_inv: B1,
+    di_inv: B1,
+    st: B1,
+    tie_en: B1,
+    tie_val: B1,
+    resv1: B5,
+    pad_di: B1,
+}
+
+#[repr(align(4))]
+#[derive(Copy, Clone)]
+pub struct _fpioa_io_config(pub _fpioa_io_config_inner);
+
+#[repr(packed)]
+#[derive(Copy, Clone)]
+pub struct _fpioa_tie_inner {
+    en: [u32; 8],
+    val: [u32; 8],
+}
+
+#[repr(align(4))]
+#[derive(Copy, Clone)]
+pub struct _fpioa_tie(pub _fpioa_tie_inner);
+
+#[repr(align(4))]
+#[derive(Copy, Clone)]
+pub struct _fpioa {
+    io: [_fpioa_io_config; 48],
+    tie: _fpioa_tie,
+}
+
+impl _fpioa {
+    pub fn new() -> &'static _fpioa {
+        unsafe {
+            (0x502B0000 as *mut _fpioa).as_mut().unwrap()
+        }
+    }
+}
 
 #[derive(Copy, Clone)]
 pub enum function {
