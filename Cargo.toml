@@ -12,5 +12,3 @@ k210-pac = { git = "https://github.com/wyfcyx/k210-pac" }
 riscv = { git = "https://github.com/rcore-os/riscv", features = ["inline-asm"] }
 modular-bitfield = "0.11.2"
 lazy_static = { version = "1.4.0", features = ["spin_no_std"] }
-num-traits = "0.2"
-num-derive = "0.3"
