@@ -8,91 +8,16 @@ use lazy_static::*;
 use k210_pac as pac;
 use modular_bitfield::prelude::*;
 
-lazy_static! {
-    pub static ref FPIOA: _fpioa = *_fpioa::new();
+
+
+pub enum fpioa_pull {
+    FPIOA_PULL_NONE = 0,
+    FPIOA_PULL_DOWN = 1,
+    FPIOA_PULL_UP = 2,
+    FPIOA_PULL_MAX = 3,
 }
 
-#[repr(packed)]
-#[bitfield]
-pub struct _fpioa_assign_inner {
-    ch_sel: B8,
-    ds: B4,
-    oe_en: B1,
-    oe_inv: B1,
-    do_sel: B1,
-    do_inv: B1,
-    pu: B1,
-    pd: B1,
-    resv0: B1,
-    sl: B1,
-    ie_en: B1,
-    ie_inv: B1,
-    di_inv: B1,
-    st: B1,
-    tie_en: B1,
-    tie_val: B1,
-    resv1: B5,
-    pad_di: B1,
-}
-
-#[repr(align(4))]
-pub struct _fpioa_assign(pub _fpioa_assign_inner);
-
-#[repr(packed)]
-#[derive(Copy, Clone)]
-#[bitfield]
-pub struct _fpioa_io_config_inner {
-    ch_sel: B8,
-    ds: B4,
-    oe_en: B1,
-    oe_inv: B1,
-    do_sel: B1,
-    do_inv: B1,
-    pu: B1,
-    pd: B1,
-    resv0: B1,
-    sl: B1,
-    ie_en: B1,
-    ie_inv: B1,
-    di_inv: B1,
-    st: B1,
-    tie_en: B1,
-    tie_val: B1,
-    resv1: B5,
-    pad_di: B1,
-}
-
-#[repr(align(4))]
-#[derive(Copy, Clone)]
-pub struct _fpioa_io_config(pub _fpioa_io_config_inner);
-
-#[repr(packed)]
-#[derive(Copy, Clone)]
-pub struct _fpioa_tie_inner {
-    en: [u32; 8],
-    val: [u32; 8],
-}
-
-#[repr(align(4))]
-#[derive(Copy, Clone)]
-pub struct _fpioa_tie(pub _fpioa_tie_inner);
-
-#[repr(align(4))]
-#[derive(Copy, Clone)]
-pub struct _fpioa {
-    io: [_fpioa_io_config; 48],
-    tie: _fpioa_tie,
-}
-
-impl _fpioa {
-    pub fn new() -> &'static _fpioa {
-        unsafe {
-            (0x502B0000 as *mut _fpioa).as_mut().unwrap()
-        }
-    }
-}
-
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub enum function {
     JTAG_TCLK = 0,        /* JTAG Test Clock */
     JTAG_TDI = 1,         /* JTAG Test Data In */
@@ -459,6 +384,19 @@ pub fn set_io_pull<N: Into<usize>>(number: N, pull: pull) {
     }
 }
 
+pub fn get_io_by_function(function: function) -> i32 {
+    let index: i32 = 0;
+    unsafe {
+        let ptr = pac::FPIOA::ptr();
+        for index in 0..48 as i32 {
+            if (*ptr).io[index as usize].read().ch_sel() == function as u8 {
+                return index
+            }
+        }
+        -1
+    }
+}
+
 /** I/O pins for FPIOA */
 #[derive(Copy, Clone)]
 pub enum io {
@@ -565,3 +503,269 @@ impl From<io> for usize {
         io as usize
     }
 }
+
+impl From<u8> for function {
+    fn from(num: u8) -> Self {
+        use function::*;
+        match num {
+            0 => return JTAG_TCLK,
+            1 => return JTAG_TDI,
+            2 => return JTAG_TMS,
+            3 => return JTAG_TDO,
+            4 => return SPI0_D0,
+            5 => return SPI0_D1,
+            6 => return SPI0_D2,
+            7 => return SPI0_D3,
+            8 => return SPI0_D4,
+            9 => return SPI0_D5,
+            10 => return SPI0_D6,
+            11 => return SPI0_D7,
+            12 => return SPI0_SS0,
+            13 => return SPI0_SS1,
+            14 => return SPI0_SS2,
+            15 => return SPI0_SS3,
+            16 => return SPI0_ARB,
+            17 => return SPI0_SCLK,
+            18 => return UARTHS_RX,
+            19 => return UARTHS_TX,
+            20 => return RESV6,
+            21 => return RESV7,
+            22 => return CLK_SPI1,
+            23 => return CLK_I2C1,
+            24 => return GPIOHS0,
+            25 => return GPIOHS1,
+            26 => return GPIOHS2,
+            27 => return GPIOHS3,
+            28 => return GPIOHS4,
+            29 => return GPIOHS5,
+            30 => return GPIOHS6,
+            31 => return GPIOHS7,
+            32 => return GPIOHS8,
+            33 => return GPIOHS9,
+            34 => return GPIOHS10,
+            35 => return GPIOHS11,
+            36 => return GPIOHS12,
+            37 => return GPIOHS13,
+            38 => return GPIOHS14,
+            39 => return GPIOHS15,
+            40 => return GPIOHS16,
+            41 => return GPIOHS17,
+            42 => return GPIOHS18,
+            43 => return GPIOHS19,
+            44 => return GPIOHS20,
+            45 => return GPIOHS21,
+            46 => return GPIOHS22,
+            47 => return GPIOHS23,
+            48 => return GPIOHS24,
+            49 => return GPIOHS25,
+            50 => return GPIOHS26,
+            51 => return GPIOHS27,
+            52 => return GPIOHS28,
+            53 => return GPIOHS29,
+            54 => return GPIOHS30,
+            55 => return GPIOHS31,
+            56 => return GPIO0,
+            57 => return GPIO1,
+            58 => return GPIO2,
+            59 => return GPIO3,
+            60 => return GPIO4,
+            61 => return GPIO5,
+            62 => return GPIO6,
+            63 => return GPIO7,
+            64 => return UART1_RX,
+            65 => return UART1_TX,
+            66 => return UART2_RX,
+            67 => return UART2_TX,
+            68 => return UART3_RX,
+            69 => return UART3_TX,
+            70 => return SPI1_D0,
+            71 => return SPI1_D1,
+            72 => return SPI1_D2,
+            73 => return SPI1_D3,
+            74 => return SPI1_D4,
+            75 => return SPI1_D5,
+            76 => return SPI1_D6,
+            77 => return SPI1_D7,
+            78 => return SPI1_SS0,
+            79 => return SPI1_SS1,
+            80 => return SPI1_SS2,
+            81 => return SPI1_SS3,
+            82 => return SPI1_ARB,
+            83 => return SPI1_SCLK,
+            84 => return SPI_SLAVE_D0,
+            85 => return SPI_SLAVE_SS,
+            86 => return SPI_SLAVE_SCLK,
+            87 => return I2S0_MCLK,
+            88 => return I2S0_SCLK,
+            89 => return I2S0_WS,
+            90 => return I2S0_IN_D0,
+            91 => return I2S0_IN_D1,
+            92 => return I2S0_IN_D2,
+            93 => return I2S0_IN_D3,
+            94 => return I2S0_OUT_D0,
+            95 => return I2S0_OUT_D1,
+            96 => return I2S0_OUT_D2,
+            97 => return I2S0_OUT_D3,
+            98 => return I2S1_MCLK,
+            99 => return I2S1_SCLK,
+            100 => return I2S1_WS,
+            101 => return I2S1_IN_D0,
+            102 => return I2S1_IN_D1,
+            103 => return I2S1_IN_D2,
+            104 => return I2S1_IN_D3,
+            105 => return I2S1_OUT_D0,
+            106 => return I2S1_OUT_D1,
+            107 => return I2S1_OUT_D2,
+            108 => return I2S1_OUT_D3,
+            109 => return I2S2_MCLK,
+            110 => return I2S2_SCLK,
+            111 => return I2S2_WS,
+            112 => return I2S2_IN_D0,
+            113 => return I2S2_IN_D1,
+            114 => return I2S2_IN_D2,
+            115 => return I2S2_IN_D3,
+            116 => return I2S2_OUT_D0,
+            117 => return I2S2_OUT_D1,
+            118 => return I2S2_OUT_D2,
+            119 => return I2S2_OUT_D3,
+            120 => return RESV0,
+            121 => return RESV1,
+            122 => return RESV2,
+            123 => return RESV3,
+            124 => return RESV4,
+            125 => return RESV5,
+            126 => return I2C0_SCLK,
+            127 => return I2C0_SDA,
+            128 => return I2C1_SCLK,
+            129 => return I2C1_SDA,
+            130 => return I2C2_SCLK,
+            131 => return I2C2_SDA,
+            132 => return CMOS_XCLK,
+            133 => return CMOS_RST,
+            134 => return CMOS_PWDN,
+            135 => return CMOS_VSYNC,
+            136 => return CMOS_HREF,
+            137 => return CMOS_PCLK,
+            138 => return CMOS_D0,
+            139 => return CMOS_D1,
+            140 => return CMOS_D2,
+            141 => return CMOS_D3,
+            142 => return CMOS_D4,
+            143 => return CMOS_D5,
+            144 => return CMOS_D6,
+            145 => return CMOS_D7,
+            146 => return SCCB_SCLK,
+            147 => return SCCB_SDA,
+            148 => return UART1_CTS,
+            149 => return UART1_DSR,
+            150 => return UART1_DCD,
+            151 => return UART1_RI,
+            152 => return UART1_SIR_IN,
+            153 => return UART1_DTR,
+            154 => return UART1_RTS,
+            155 => return UART1_OUT2,
+            156 => return UART1_OUT1,
+            157 => return UART1_SIR_OUT,
+            158 => return UART1_BAUD,
+            159 => return UART1_RE,
+            160 => return UART1_DE,
+            161 => return UART1_RS485_EN,
+            162 => return UART2_CTS,
+            163 => return UART2_DSR,
+            164 => return UART2_DCD,
+            165 => return UART2_RI,
+            166 => return UART2_SIR_IN,
+            167 => return UART2_DTR,
+            168 => return UART2_RTS,
+            169 => return UART2_OUT2,
+            170 => return UART2_OUT1,
+            171 => return UART2_SIR_OUT,
+            172 => return UART2_BAUD,
+            173 => return UART2_RE,
+            174 => return UART2_DE,
+            175 => return UART2_RS485_EN,
+            176 => return UART3_CTS,
+            177 => return UART3_DSR,
+            178 => return UART3_DCD,
+            179 => return UART3_RI,
+            180 => return UART3_SIR_IN,
+            181 => return UART3_DTR,
+            182 => return UART3_RTS,
+            183 => return UART3_OUT2,
+            184 => return UART3_OUT1,
+            185 => return UART3_SIR_OUT,
+            186 => return UART3_BAUD,
+            187 => return UART3_RE,
+            188 => return UART3_DE,
+            189 => return UART3_RS485_EN,
+            190 => return TIMER0_TOGGLE1,
+            191 => return TIMER0_TOGGLE2,
+            192 => return TIMER0_TOGGLE3,
+            193 => return TIMER0_TOGGLE4,
+            194 => return TIMER1_TOGGLE1,
+            195 => return TIMER1_TOGGLE2,
+            196 => return TIMER1_TOGGLE3,
+            197 => return TIMER1_TOGGLE4,
+            198 => return TIMER2_TOGGLE1,
+            199 => return TIMER2_TOGGLE2,
+            200 => return TIMER2_TOGGLE3,
+            201 => return TIMER2_TOGGLE4,
+            202 => return CLK_SPI2,
+            203 => return CLK_I2C2,
+            204 => return INTERNAL0,
+            205 => return INTERNAL1,
+            206 => return INTERNAL2,
+            207 => return INTERNAL3,
+            208 => return INTERNAL4,
+            209 => return INTERNAL5,
+            210 => return INTERNAL6,
+            211 => return INTERNAL7,
+            212 => return INTERNAL8,
+            213 => return INTERNAL9,
+            214 => return INTERNAL10,
+            215 => return INTERNAL11,
+            216 => return INTERNAL12,
+            217 => return INTERNAL13,
+            218 => return INTERNAL14,
+            219 => return INTERNAL15,
+            220 => return INTERNAL16,
+            221 => return INTERNAL17,
+            222 => return CONSTANT,
+            223 => return INTERNAL18,
+            224 => return DEBUG0,
+            225 => return DEBUG1,
+            226 => return DEBUG2,
+            227 => return DEBUG3,
+            228 => return DEBUG4,
+            229 => return DEBUG5,
+            230 => return DEBUG6,
+            231 => return DEBUG7,
+            232 => return DEBUG8,
+            233 => return DEBUG9,
+            234 => return DEBUG10,
+            235 => return DEBUG11,
+            236 => return DEBUG12,
+            237 => return DEBUG13,
+            238 => return DEBUG14,
+            239 => return DEBUG15,
+            240 => return DEBUG16,
+            241 => return DEBUG17,
+            242 => return DEBUG18,
+            243 => return DEBUG19,
+            244 => return DEBUG20,
+            245 => return DEBUG21,
+            246 => return DEBUG22,
+            247 => return DEBUG23,
+            248 => return DEBUG24,
+            249 => return DEBUG25,
+            250 => return DEBUG26,
+            251 => return DEBUG27,
+            252 => return DEBUG28,
+            253 => return DEBUG29,
+            254 => return DEBUG30,
+            255 => return DEBUG31,
+            _ => panic!("no such function")
+        }
+    }
+}
+
