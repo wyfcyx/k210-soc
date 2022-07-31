@@ -68,8 +68,5 @@ pub fn set_pin(pin: u8, value: bool) {
         (*ptr)
             .data_output
             .modify(|r, w| w.bits(set_bit(r.bits(), pin, value)));
-        (*ptr)
-            .data_input
-            .modify(|r, w| w.bits(set_bit(r.bits(), pin, !value)));
     }
 }
