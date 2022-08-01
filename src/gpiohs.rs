@@ -4,7 +4,7 @@
 //use k210_hal::pac;
 use k210_pac as pac;
 
-use crate::gpio::direction;
+use crate::gpio::{direction, drive_mode};
 use super::fpioa;
 use super::gpio;
 use super::utils::{set_bit,get_bit};
