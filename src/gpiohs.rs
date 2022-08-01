@@ -9,7 +9,7 @@ use super::fpioa;
 use super::gpio;
 use super::utils::{set_bit,get_bit};
 
-const GPIOHS_MAX_PINNO: usize = 32;
+const GPIOHS_MAX_PINNO: u8 = 32;
 
 // TODO embedded-hal::digital::v2::{InputPin, OutputPin}
 

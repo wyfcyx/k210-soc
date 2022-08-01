@@ -6,7 +6,7 @@ use crate::fpioa::{function, fpioa_pull};
 use super::utils::{set_bit,get_bit};
 use super::fpioa;
 
-const GPIO_MAX_PINNO: usize = 8;
+const GPIO_MAX_PINNO: u8 = 8;
 
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub enum direction {
