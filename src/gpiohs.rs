@@ -24,7 +24,7 @@ pub fn set_direction(pin: u8, direction: gpio::direction) {
     }
 }
 
-pub fn set_drive_mode(pin: u8, mode: drive_mode) {
+pub fn set_drive_mode(pin: u8, mode: gpio::direction) {
     let io_number = fpioa::get_io_by_function((fpioa::function::GPIOHS0 as u8 + pin).into());
 
     let p: fpioa::pull;
