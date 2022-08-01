@@ -5,6 +5,9 @@ use k210_pac as pac;
 use crate::fpioa::{function, fpioa_pull};
 use super::utils::{set_bit,get_bit};
 use super::fpioa;
+
+const GPIO_MAX_PINNO: usize = 8;
+
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub enum direction {
     INPUT,
@@ -21,7 +24,9 @@ pub enum drive_mode {
 // TODO
 
 pub fn set_drive_mode(pin: u8, mode: drive_mode) {
+    assert!(pin < GPIO_MAX_PINNO);
     let io_number = fpioa::get_io_by_function((fpioa::function::GPIO0 as u8 + pin).into());
+    assert!(io_number >= 0);
 
     let p: fpioa::pull;
     let dir: direction;

@@ -9,6 +9,8 @@ use super::fpioa;
 use super::gpio;
 use super::utils::{set_bit,get_bit};
 
+const GPIOHS_MAX_PINNO: usize = 32;
+
 // TODO embedded-hal::digital::v2::{InputPin, OutputPin}
 
 /** Set input/output direction for a GPIOHS pin */
@@ -25,7 +27,9 @@ pub fn set_direction(pin: u8, direction: gpio::direction) {
 }
 
 pub fn set_drive_mode(pin: u8, mode: gpio::drive_mode) {
+    assert!(pin < GPIOHS_MAX_PINNO);
     let io_number = fpioa::get_io_by_function((fpioa::function::GPIOHS0 as u8 + pin).into());
+    assert!(io_number >= 0);
 
     let p: fpioa::pull;
     let dir: direction;
